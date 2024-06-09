@@ -1,2 +1,7 @@
 /train
 /valid
+logs/train/events.out.tfevents.1717670468.DESKTOP-8919IER.3628.0.v2
+logs/train/events.out.tfevents.1717672466.DESKTOP-8919IER.12300.0.v2
+logs/train/events.out.tfevents.1717670551.DESKTOP-8919IER.16408.0.v2
+logs/validation/events.out.tfevents.1717672649.DESKTOP-8919IER.12300.1.v2
+logs/validation/events.out.tfevents.1717670687.DESKTOP-8919IER.16408.1.v2

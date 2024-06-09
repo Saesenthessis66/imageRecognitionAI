@@ -1,79 +1,92 @@
 import os
-
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1' 
 
 import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import numpy as np
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D,MaxPooling2D, Dense,Flatten, Dropout
+from tensorflow.keras.metrics import Precision, Recall, BinaryAccuracy
 
-currentPath = os.getcwd()
+data_dir = 'train'
+valid_data_dir = 'valid'
 
+batch_size = 16
+epochs = 20
 
-train_datagen = ImageDataGenerator(
-    rescale=1./255,
-    shear_range=0.2,
-    zoom_range=0.2,
-    horizontal_flip=True)
+data = tf.keras.utils.image_dataset_from_directory(data_dir, batch_size=batch_size)
+valid_data =  tf.keras.utils.image_dataset_from_directory(valid_data_dir, batch_size=batch_size)
 
-validation_datagen = ImageDataGenerator(rescale=1./255)
+data = data.map(lambda x,y: (x/255,y))
+valid_data = valid_data.map(lambda x,y: (x/255,y))
 
-train_generator = train_datagen.flow_from_directory(
-    currentPath + '/train',
-    target_size=(256, 256),
-    batch_size=32,
-    class_mode='binary')
+train_size = len(data)
+val_size = int(len(valid_data)*.65) #val_size = len(valid_data)
+test_size = int(len(valid_data)*.35)
 
-validation_generator = validation_datagen.flow_from_directory(
-    currentPath + '/valid',
-    target_size=(256, 256),
-    batch_size=32,
-    class_mode='binary')
+train = data.take(train_size)
+val = valid_data.take(val_size)
+test = valid_data.skip(val_size).take(test_size)
 
-model = Sequential([
-    Conv2D(32, (3, 3), activation='relu', input_shape=(256, 256, 3)),
-    MaxPooling2D(pool_size=(2, 2)),
-    Conv2D(32, (3, 3), activation='relu'),
-    MaxPooling2D(pool_size=(2, 2)),
-    Conv2D(64, (3, 3), activation='relu'),
-    MaxPooling2D(pool_size=(2, 2)),
-    Flatten(),
-    Dense(64, activation='relu'),
-    Dropout(0.5),
-    Dense(1, activation='sigmoid')
-])
+model = Sequential()
 
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.add(Conv2D(16,(3,3),1,activation='relu',input_shape=(256,256,3)))
+model.add(MaxPooling2D())
 
-history = model.fit(
-    train_generator,
-    steps_per_epoch=100,
-    epochs=30,
-    validation_data=validation_generator,
-    validation_steps=50)
+model.add(Conv2D(64,(3,3),1,activation='relu'))
+model.add(MaxPooling2D())
 
-# Evaluate the model on the validation data
-val_loss, val_acc = model.evaluate(validation_generator, steps=50)
-print(f"Validation loss: {val_loss}")
-print(f"Validation accuracy: {val_acc}")
+model.add(Conv2D(32,(3,3),1,activation='relu'))
+model.add(MaxPooling2D())
 
-# Plot training & validation accuracy values
-plt.plot(history.history['accuracy'])
-plt.plot(history.history['val_accuracy'])
-plt.title('Model accuracy')
-plt.ylabel('Accuracy')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Validation'], loc='upper left')
+model.add(Flatten())
+
+model.add(Dense(256,activation='relu'))
+model.add(Dense(1,activation='sigmoid'))
+
+model.compile('adam',loss=tf.losses.BinaryCrossentropy(),metrics=['accuracy'])
+model.summary() # good for sprawko
+
+logdir = 'logs'
+
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
+
+hist = model.fit(train,epochs=epochs, validation_data = val, callbacks=[tensorboard_callback])
+
+fig = plt.figure()
+plt.plot(hist.history['loss'],color='teal',label='loss')
+plt.plot(hist.history['val_loss'],color='orange',label='val_loss')
+fig.suptitle('Loss',fontsize=20)
+plt.legend(loc='upper left')
 plt.show()
 
-# Plot training & validation loss values
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('Model loss')
-plt.ylabel('Loss')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Validation'], loc='upper left')
+fig = plt.figure()
+plt.plot(hist.history['accuracy'],color='teal',label='accuracy')
+plt.plot(hist.history['val_accuracy'],color='orange',label='val_accuracy')
+fig.suptitle('Accuracy',fontsize=20)
+plt.legend(loc='upper left')
 plt.show()
+
+pre = Precision()
+re = Recall()
+acc = BinaryAccuracy()
+
+
+for batch in test.as_numpy_iterator():
+    X, y =batch
+    yhat = model.predict(X)
+    pre.update_state(y,yhat)
+    re.update_state(y,yhat)
+    acc.update_state(y,yhat)
+
+print(f'Precision:{pre.result().numpy()},Recall:{re.result().numpy()},Accuracy:{acc.result().numpy()}')
+
+#for i in len(test) 
+# for batch in test.as_numpy_iterator():
+#     X, y =batch
+#     yhat = model.predict(X)
+#     pre.update_state(y,yhat)
+#     re.update_state(y,yhat)
+#     acc.update_state(y,yhat)
+#     test.as_numpy_iterator().next()
+# print(f'Precision:{pre.result().numpy()},Recall:{re.result().numpy()},Accuracy:{acc.result().numpy()}')
