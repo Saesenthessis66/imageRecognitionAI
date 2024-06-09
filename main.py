@@ -35,16 +35,7 @@ model = Sequential()
 model.add(Conv2D(16,(3,3),1,activation='relu',input_shape=(256,256,3)))
 model.add(MaxPooling2D())
 
-model.add(Conv2D(64,(3,3),1,activation='relu'))
-model.add(MaxPooling2D())
-
-model.add(Conv2D(32,(3,3),1,activation='relu'))
-model.add(MaxPooling2D())
-
-model.add(Conv2D(64,(3,3),1,activation='relu'))
-model.add(MaxPooling2D())
-
-model.add(Conv2D(32,(3,3),1,activation='relu'))
+model.add(Conv2D(8,(3,3),1,activation='relu'))
 model.add(MaxPooling2D())
 
 model.add(Flatten())
