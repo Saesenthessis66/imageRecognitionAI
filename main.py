@@ -7,6 +7,8 @@ from matplotlib import pyplot as plt
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D,MaxPooling2D, Dense,Flatten, Dropout
 from tensorflow.keras.metrics import Precision, Recall, BinaryAccuracy
+from tensorflow.keras.models import load_model
+import cv2
 
 data_dir = 'train'
 valid_data_dir = 'valid'
@@ -31,6 +33,12 @@ test = valid_data.skip(val_size).take(test_size)
 model = Sequential()
 
 model.add(Conv2D(16,(3,3),1,activation='relu',input_shape=(256,256,3)))
+model.add(MaxPooling2D())
+
+model.add(Conv2D(64,(3,3),1,activation='relu'))
+model.add(MaxPooling2D())
+
+model.add(Conv2D(32,(3,3),1,activation='relu'))
 model.add(MaxPooling2D())
 
 model.add(Conv2D(64,(3,3),1,activation='relu'))
@@ -90,3 +98,24 @@ print(f'Precision:{pre.result().numpy()},Recall:{re.result().numpy()},Accuracy:{
 #     acc.update_state(y,yhat)
 #     test.as_numpy_iterator().next()
 # print(f'Precision:{pre.result().numpy()},Recall:{re.result().numpy()},Accuracy:{acc.result().numpy()}')
+
+img = cv2.imread('ejaj.jpg') # hello read me
+resize = tf.image.resize(img,(256,256))
+
+yhat = model.predict(np.expand_dims(resize/255,0))
+
+if yhat >0.5:
+    print(f'Predicted image is AI generated')
+else:
+    print(f'Predicted image is NOT AI generated!')
+
+model.save(os.path.join('models','imageclassifier.h5'))
+
+new_model = load_model(os.path.join('models','imageclassifier.h5'))
+
+yhatnew =  new_model.predict(np.expand_dims(resize/255,0))
+
+if yhatnew >0.5:
+    print(f'Predicted image is AI generated')
+else:
+    print(f'Predicted image is NOT AI generated!')
