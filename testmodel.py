@@ -18,7 +18,7 @@ img_array = np.expand_dims(img_array, axis=0)
 img_array /= 255.0
 
 prediction = model.predict(img_array)
-if prediction[0] > 0.5:
+if prediction[0] < 0.5:
     print("The image is AI-generated.")
 else:
     print("The image is real.")
@@ -30,7 +30,7 @@ img_array = np.expand_dims(img_array, axis=0)
 img_array /= 255.0
 
 prediction = model.predict(img_array)
-if prediction[0] > 0.5:
+if prediction[0] < 0.5:
     print("The image is AI-generated.")
 else:
     print("The image is real.")
@@ -42,7 +42,7 @@ img_array = np.expand_dims(img_array, axis=0)
 img_array /= 255.0
 
 prediction = model.predict(img_array)
-if prediction[0] > 0.5:
+if prediction[0] < 0.5:
     print("The image is AI-generated.")
 else:
     print("The image is real.")
@@ -54,7 +54,7 @@ img_array = np.expand_dims(img_array, axis=0)
 img_array /= 255.0
 
 prediction = model.predict(img_array)
-if prediction[0] > 0.5:
+if prediction[0] < 0.5:
     print("The image is AI-generated.")
 else:
     print("The image is real.")
@@ -66,7 +66,7 @@ img_array = np.expand_dims(img_array, axis=0)
 img_array /= 255.0
 
 prediction = model.predict(img_array)
-if prediction[0] > 0.5:
+if prediction[0] < 0.5:
     print("The image is AI-generated.")
 else:
     print("The image is real.")
@@ -78,7 +78,7 @@ img_array = np.expand_dims(img_array, axis=0)
 img_array /= 255.0
 
 prediction = model.predict(img_array)
-if prediction[0] > 0.5:
+if prediction[0] < 0.5:
     print("The image is AI-generated.")
 else:
     print("The image is real.")
@@ -90,7 +90,7 @@ img_array = np.expand_dims(img_array, axis=0)
 img_array /= 255.0
 
 prediction = model.predict(img_array)
-if prediction[0] > 0.5:
+if prediction[0] < 0.5:
     print("The image is AI-generated.")
 else:
     print("The image is real.")
@@ -102,7 +102,7 @@ img_array = np.expand_dims(img_array, axis=0)
 img_array /= 255.0
 
 prediction = model.predict(img_array)
-if prediction[0] > 0.5:
+if prediction[0] < 0.5:
     print("The image is AI-generated.")
 else:
     print("The image is real.")
@@ -114,7 +114,7 @@ img_array = np.expand_dims(img_array, axis=0)
 img_array /= 255.0
 
 prediction = model.predict(img_array)
-if prediction[0] > 0.5:
+if prediction[0] < 0.5:
     print("The image is AI-generated.")
 else:
     print("The image is real.")
@@ -126,8 +126,19 @@ img_array = np.expand_dims(img_array, axis=0)
 img_array /= 255.0
 
 prediction = model.predict(img_array)
-if prediction[0] > 0.5:
+if prediction[0] < 0.5:
     print("The image is AI-generated.")
 else:
     print("The image is real.")
 
+img_path = 'michal.png'
+img = image.load_img(img_path, target_size=(150, 150))
+img_array = image.img_to_array(img)
+img_array = np.expand_dims(img_array, axis=0)
+img_array /= 255.0
+
+prediction = model.predict(img_array)
+if prediction[0] < 0.5:
+    print("The michal image is AI-generated.")
+else:
+    print("The michal image is real.")
